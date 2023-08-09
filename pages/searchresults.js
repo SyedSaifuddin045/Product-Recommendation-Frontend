@@ -1,48 +1,35 @@
 import React from 'react'
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import io from 'socket.io-client';
+import socket from '@/utils/socket';
 
 function Searchresults() {
-    const [progressMessages, setProgressMessages] = useState([]);
-    const router = useRouter();
-    const { searchQuery } = router.query; // Get the search query from the router query parameter
-  
-    useEffect(() => {
-      // Your socket connection logic to fetch data
-      const socket = io('http://localhost:3500'); // Replace with your backend server URL
-  
-      // Event listener for progress updates
-      socket.on('progress', (data) => {
-        console.log("Progress data:", data);
-        setProgressMessages((prevMessages) => [...prevMessages, data]);
-      });
-  
-      // Emit an event to start the execution of the Python script with the searchQuery
-      socket.emit('StartScript', searchQuery);
-  
-      // Clean up the socket connection when the component is unmounted
-      return () => {
-        socket.disconnect();
-      };
-    }, [searchQuery]);
-  
-    return (
-      <div>
-        <h1>Search Results</h1>
-        <div>
-          {/* Display your search results here */}
-          {/* {progressMessages.map((message, index) => (
-            <p key={index}>{message}</p>
-          ))} */}
-          {progressMessages ? (
-              <p>{progressMessages}</p>
-          ):(
-            <p>searching</p>
-          )}
+  const router = useRouter();
+  const[jsonData, setJsonData] = useState(null)
+
+  useEffect(() => {
+    socket.on('json', (_jsonData) => {
+      setJsonData(JSON.parse(_jsonData))
+      console.log(_jsonData)
+    })
+  }, [socket])
+
+  return (
+    <div>
+      <h1>Search Results</h1>
+      {jsonData && jsonData.map((product, index) => (
+        <div key={index}>
+          <img src={product.image_url} alt={product.item_name} />
+          <h2>{product.item_name}</h2>
+          <p>Price: {product.price}</p>
+          <p>Rating: {product.rating}</p>
+          <a href={product.link} target="_blank" rel="noopener noreferrer">View on Amazon</a>
+          <p>Positive Reviews: {product.positive_reviews}</p>
+          <p>Total Reviews: {product.total_reviews}</p>
         </div>
-      </div>
-    );
+      ))}
+    </div>
+  );
 }
 
 export default Searchresults
