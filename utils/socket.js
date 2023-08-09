@@ -1,5 +1,5 @@
 import io from 'socket.io-client';
 
-const socket = io('http://localhost:3500'); // Replace with your server URL
+const socket = io('product-recommendation-backend-production.up.railway.app');
 
 export default socket;
