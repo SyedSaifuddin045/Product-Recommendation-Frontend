@@ -5,18 +5,19 @@ import socket from '@/utils/socket';
 
 function Searchresults() {
   const router = useRouter();
-  const[jsonData, setJsonData] = useState(null)
+  const [jsonData, setJsonData] = useState(null)
 
   useEffect(() => {
-    socket.on('json', (_jsonData) => {
+    socket.on('json', (_jsonData, acknowledgmentCallback) => {
       setJsonData(JSON.parse(_jsonData))
       console.log(_jsonData)
+      acknowledgmentCallback('success')
     })
   }, [socket])
 
   return (
-    <div>
-      <h1>Search Results</h1>
+    <div style={{ overflow: 'auto', height: '100vh' }}>
+      <h1>Search Results:</h1>
       {jsonData && jsonData.map((product, index) => (
         <div key={index}>
           <img src={product.image_url} alt={product.item_name} />
